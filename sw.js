@@ -1,0 +1,5 @@
+const CACHE='life-os-studio-2.0.0-ca1563a645b4';
+const ASSETS=['./','./index.html','./style.css','./core.js','./app.js','./manifest.webmanifest','./icon.svg','./assets/reference.png','./assets/Inter-400.ttf','./assets/Inter-700.ttf','./assets/Manrope-400.ttf','./assets/Manrope-700.ttf','./assets/icon-192.png','./assets/icon-512.png'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('life-os-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==self.location.origin)return; e.respondWith(caches.open(CACHE).then(async c=>{const hit=await c.match(e.request,{ignoreSearch:true});if(hit)return hit;try{return await fetch(e.request)}catch(err){if(e.request.mode==='navigate')return await c.match('./index.html');return new Response('Hors connexion',{status:503})}}))});
